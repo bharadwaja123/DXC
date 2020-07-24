@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript">
+		function de() 
+		{
+			var colours=["orange","red","blue","yellow","green"];
+
+			var dd=document.getElementById('dr');
+			
+			for(var i=0;i<colours.length;i++)
+			{
+				var d=document.createElement('option');
+				d.text=colours[i];
+				dd.add(d,i+1);
+			}
+		}
+		
+	</script>
+</head>
+<body onload="de()">
+	<select id="dr">
+		<option> select colour </option>
+	</select>
+
+</body>
+</html>

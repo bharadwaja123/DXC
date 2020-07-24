@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript">
+		function dr() 
+		{
+			var games=["cricket","football","ufc"];
+
+			var d=document.getElementById('ds');
+			
+			for( var i=0;i<games.length;i++)
+			{
+				var e=document.createElement('option');
+				e.text=games[i];
+				d.add(e,i+1);
+			}
+		}
+		data=[["Dhoni","Sachin","Smith","kohli"],["messi","ronaldo","sergio"],["khabib","jones","tony"]];
+
+function fillData()
+{
+var typeDDN=document.getElementById('ds');
+  var selectedIdx= typeDDN.selectedIndex;
+
+console.log(selectedIdx);
+
+var dataDD=document.getElementById('dd');
+
+dataDD.innerText=null;
+
+
+for(i=0;i<data[selectedIdx].length;i++)
+{
+
+var ele=document.createElement('option');
+ele.text=data[selectedIdx][i];
+
+dataDD.add(ele,i+1)
+}
+}
+	</script>
+</head>
+<body onload="dr()">
+	<select id="ds" onchange="fillData()">
+
+	</select>
+
+<select id="dd">
+<option>select</option>
+</select>
+
+</body>
+</html>
