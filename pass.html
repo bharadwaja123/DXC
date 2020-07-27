@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript">
+		function pass() {
+			var p=document.getElementById('pwd').value;
+			if((p.length>9) || (p.which>=65 && p.which<=90) || (p.which>=97 && p.which<=123) || (p.which>=48 && p.which<=57)) 
+			{
+				alert('valid');
+				return true;
+			}
+			else
+			{
+				alert('invalid');
+				return false;
+			}
+		}
+	</script>
+</head>
+<body>
+	<input type="password" id="pwd" >
+    
+    <input type="submit" value="Submit">
+
+</body>
+</html>
