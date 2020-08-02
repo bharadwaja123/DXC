@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style type="text/css">
+		body
+		{
+			background: url(img.jpg);
+			background-repeat: no-repeat;
+			background-size: cover;
+			opacity: 0.7;
+	}
+</style>
+	<script type="text/javascript">
+	
+Deg=["Graduation",'Post graduation'];
+
+
+function messi()
+{
+var typeDD=document.getElementById('type');
+for(i=0;i<Deg.length;i++){
+var ele=document.createElement('option');
+ele.text=Deg[i];
+typeDD.add(ele,i+1)
+}
+}
+
+
+   data=[['eee','civil','ece'],['history','sci','commeres']];
+
+
+function ronaldo()
+{
+var typeDDN=document.getElementById('type');
+  var selectedIdx= typeDDN.selectedIndex;
+
+console.log(selectedIdx);
+
+var dataDD=document.getElementById('dd');
+
+dataDD.innerText=null;
+
+
+for(i=0;i<data[selectedIdx].length;i++)
+{
+
+var ele=document.createElement('option');
+ele.text=data[selectedIdx][i];
+
+dataDD.add(ele,i+1)
+
+
+}
+
+
+}
+
+function isPasswordMatch() {
+var pwd= document.getElementById('tp').value;
+var pwd1=document.getElementById('tcp').value;
+if(pwd != pwd1)
+{
+alert('invalid password');
+return false;
+}
+else
+{
+alert('valid password');
+return true;
+}
+}
+function test(e)
+{
+if(!(( e.which >= 65 && e.which <=90 ) || (e.which >= 97 && e.which <=122)))
+{
+e.preventDefault();
+
+}
+
+}
+
+function uname() {
+  var x = document.forms["myForm"]["mytxt"].value;
+  if (x == "") {
+    alert("user name  must be filled");
+    return false;
+  }
+}
+function paas() {
+  var y = document.forms["myFor"]["tp"].value;
+  if (y == "") {
+    alert("password  must be filled");
+    return false;
+  }
+}
+function cpaas() {
+  var z = document.forms["myFo"]["tcp"].value;
+  if (z == "") {
+    alert("confirm password  must be filled");
+    return false;
+  }
+}
+function db() {
+  var a = document.forms["myF"]["dob"].value;
+  if (a == "") {
+    alert("date of birth  must be filled");
+    return false;
+  }
+}</script>
+
+</head>
+<center>
+<div style="height: 300px;width: 300px; background-color: lightblue">
+	<h1> REGISTRATION FORM </h1>
+<TABLE> <tr> <td>
+	
+<body onload="messi()"> </td>
+</tr><tr>
+<td><select id="type" onchange="ronaldo()">
+</select>
+<select id="dd">
+<option>select</option>
+</select></td></tr>
+<form name="myForm" action="/action_page.php" onsubmit="return uname()" method="post">
+
+<tr><td>
+<input type="text" id="mytxt" onkeypress ="test(event)" placeholder="username">
+</td></tr>
+</form>
+<form name="myFor" action="/action_page.php" onsubmit="return pass()" method="post">
+<tr><td>
+    <input type="password" placeholder="New Password" id="tp">
+</td></tr><tr><td></form>
+	<form name="myFo" action="/action_page.php" onsubmit="return cpaas()" method="post">
+<input type="password" placeholder="Retype New Password" id="tcp"></td></tr>
+<tr><td></form>
+<input type="submit" onclick="isPasswordMatch()"></td></tr><tr><td>
+<form name="myF" action="/action_page.php" onsubmit="return db()" method="post">
+<input type="date" name="test" id="dob" max="2002-07-24" alt="invalid dob"></td></tr>
+
+<tr><td>
+<input type="submit" value="submit"></td></tr>
+</select>
+</center>
+</div>
+</body>
+</form>
+</html>
