@@ -1,0 +1,97 @@
+To insert same values as it already has the unique constraint.
+
+create table alet
+(
+uname varchar(20),
+pass varchar(20),
+constraint pa primary key(uname,pass)
+);
+
+alter table alet
+drop constraint pa;
+
+ alter table alet
+  2  drop constraint pa;
+
+Table altered.
+
+ insert into alet values('nam','pas');
+
+1 row created.
+
+ insert into alet values('nam','pas');
+
+1 row created.
+
+select * from alet;
+
+UNAME                PASS
+-------------------- --------------------
+nam                  pas
+nam                  pas
+
+-----------------------------------------------------------------------------------------------------------
+unknown constraint name drop that by knowing
+
+create table alte
+(
+uname varchar(20) primary key,
+pass varchar(20)
+);
+
+select constraint_name,constraint_type,table_name
+from user_constraints
+where table_name=upper('alte');
+
+
+CONSTRAINT_NAME                C TABLE_NAME
+------------------------------ - ------------------------------
+SYS_C006999                    P ALTE
+
+     alter table alte
+    drop constraint SYS_C006999;
+
+Table altered.
+
+ insert into alte values('nam','pas');
+
+1 row created.
+
+ insert into alte values('nam','pas');
+
+1 row created.
+
+select * from alte;
+
+UNAME                PASS
+-------------------- --------------------
+nam                  pas
+nam                  pas
+nam                  pas
+
+---------------------------------------------------------------------------------------------------------------------------------------
+to change the data type in the table after defining it.
+
+create table dty
+(
+uname varchar(20) ,
+pass varchar(20)
+);
+
+alter table dty
+modify pass int;
+
+
+Table altered.
+
+SQL> insert into dty values('nam','pas');
+insert into dty values('nam','pas')
+                             *
+ERROR at line 1:
+ORA-01722: invalid number
+
+
+SQL> insert into dty values('nam','125');
+
+1 row created.
+

@@ -1,0 +1,109 @@
+-> create table Employee with the following attributes and constraints
+
+EmpFName
+EmpMName
+EmpLastName
+EmpAge -> must be a positive number and less than 50
+EmpCity -> should begin with letter B (Ex: Bangalore , Bijapur)
+EmpDesignation -> can be any manager (Ex sales manager, acc manager)
+EmpId -> primary key must have 5 chars (EX: emp01,emp02,emp03)
+empDOB -> must be a date(data type) column
+
+-> insert 5 employee details
+
+->update any employe and change city name
+
+-> delete an employee
+ 
+-> delete all employees
+
+->get back all the employees deleted in previous delete
+
+-> display employee  name and dob in(DD-MM-YYYY) fromat
+
+-> display employee  name in following format  
+       Fname   Mname    lname
+Ex:  Sachin  Ramesh  Tendulkar
+should be displayed as  S.R.Tendulkar  
+
+
+==================================
+
+create table emp
+(
+efname varchar(20),
+emname varchar(20),
+elname varchar(20),
+eage int check (eage between 0 and 49),
+ecity varchar(20) check(ecity like 'B%'),
+edesig varchar(20),
+eid varchar(5) ,
+edob date,
+constraint ckt check(length(eid)=5)
+);
+
+create table emp1
+(
+efname varchar(20),
+emname varchar(20),
+elname varchar(20),
+eage int check (eage between 0 and 49),
+ecity varchar(20) check(ecity like'B%'),
+edesig varchar(20),
+eid varchar(5) primary key,
+edob date,
+constraint ckt check(length(eid)=5)
+);
+
+insert into emp values('ab','y','abc',23,'Bombay','sales','emp07',to_date('01-01-2020','dd-mm-yyyy'));
+insert into emp values('abc','z','abc1',24,'Bang','sales','emp06',to_date('01-01-2020','dd-mm-yyyy'));
+insert into emp values('abcd','x','abc2',26,'Bang','sales','emp09',to_date('01-01-2020','dd-mm-yyyy'));
+insert into emp values('abcde','w','abc3',28,'Bang','sales','emp04',to_date('01-01-2020','dd-mm-yyyy'));
+insert into emp values('abec','o','abc4',27,'Bang','sales','emp08',to_date('01-01-2020','dd-mm-yyyy'));
+
+update emp set ecity='Burj' 
+where elname='abc4';
+
+delete from emp
+where efname='ab';
+
+create or replace trigger tgems
+after delete
+on emp
+for each row
+begin
+insert into emp1 values(:old.efname,:old.emname,:old.elname,:old.eage,:old.ecity,:old.edesig,:old.eid,:old.edob);
+end;
+/
+
+
+ delete emp;
+
+7 rows deleted.
+
+select * from emp;
+
+no rows selected
+
+ select * from emp1;
+7 rows selected.
+
+
+SQL> select efname,emname,elname,edob from emp1;
+
+EFNAME               EMNAME               ELNAME               EDOB
+-------------------- -------------------- -------------------- ---------
+abc                                       abc1                 01-JAN-20
+abcd                 x                    abc2                 01-JAN-20
+abcde                w                    abc3                 01-JAN-20
+abc                  z                    abc1                 01-JAN-20
+abcd                 x                    abc2                 01-JAN-20
+abec                 o                    abc4                 01-JAN-20
+abcde                w                    abc3                 01-JAN-20
+
+7 rows selected.
+
+select SUBSTR(efname,1,1) || '.' ||SUBSTR(emname,1,1)|| '.' ||elname as name from emp where eid='emp10');
+
+
+

@@ -1,0 +1,165 @@
+
+create table stud
+(
+stud_id int primary key,
+clg_id int references clg(cid),
+gender varchar(6),
+sem int,
+marks int
+)
+
+alter table stud
+add sname varchar(20);
+
+insert into stud values('101','121','male','1','67','Rohit');
+insert into stud values('102','121','male','3','67','Rahul');
+insert into stud values('103','121','female','1','67','rajeshwari');
+insert into stud values('104','121','male','5','67','Virat');
+
+
+insert into stud values('105','122','male','5','67','Dawan');
+insert into stud values('106','122','female','3','67','smrithi');
+insert into stud values('107','122','female','1','67','harampreet');
+insert into stud values('108','122','male','5','67','DK');
+
+
+insert into stud values('109','123','male','5','67','Dhoni');
+insert into stud values('110','123','male','5','67','Hardik');
+insert into stud values('111','123','female','3','67','Shifali');
+insert into stud values('112','123','male','3','67','Jadeja');
+insert into stud values('113','123','male','3','67','kuldeep');
+
+
+
+select sname , clg_id
+from stud;
+
+
+select sname , clg_id
+from stud
+group by clg_id;
+
+// error
+
+
+->column inculded in select list must be included in group by list as well
+if not add aggregate function to the column which is not in group by
+
+sum
+min
+max
+avg
+count
+
+
+
+select count(sname) , clg_id
+from stud
+group by clg_id;
+
+
+
+display total no of female stud and male stud in all clgs
+
+
+select count(sname), gender
+from stud
+group by gender;
+
+
+display  no of female stud and male stud in rspctv clgs
+
+select count(sname), gender, clg_id
+from stud
+group by gender , clg_id;
+
+
+
+display  no of  stud studying in a sem irrspctv of clg
+
+select count(sname), sem
+from stud
+group by sem;
+
+
+select count(sname) , sem , clg_id
+from stud
+group by sem,clg_id;
+
+
+
+select count(sname) , sem , clg_id
+from stud
+group by  rollup(sem,clg_id);
+
+
+select count(sname) , sem , clg_id
+from stud
+group by  rollup(clg_id,sem);
+
+
+select count(sname) , sem , clg_id
+from stud
+group by  cube(clg_id,sem);
+
+select count(sname), gender
+from stud
+where count(gender) > 5
+group by gender;
+
+
+select count(sname), gender
+from stud
+group by gender
+having count(gender) > 5;
+
+
+select count(sname), clg_id
+from stud
+group by clg_id;
+
+--- pick up only those clgs which has 4 or more studs
+
+select count(sname), clg_id
+from stud
+group by clg_id
+having count(sname) >=4;
+
+--- pick up only those clgs which has 5 or more studs
+
+select count(sname), clg_id
+from stud
+group by clg_id
+having count(sname) >=5;
+
+
+-- get me the clg which has stud in all sems
+1,3,5
+
+select clg_id
+from stud
+group by clg_id
+having count(distinct sem)=3;
+
+
+cid    
+121  
+122
+
+
+
+
+
+
+
+
+for ascending or for the descending order 
+
+select * from stud
+order by sname(any column heading) asc or desc;
+
+
+create table dl
+(
+pass int
+);

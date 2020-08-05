@@ -1,0 +1,105 @@
+(1)ques
+
+create table stock
+  2  (
+  3  sid int primary key,
+  4  sname varchar(20,
+  5  scom varchar(20),
+  6  spls varchar(20),
+  7  scon varchar(20)
+  8  );
+
+ insert into stock values('1','choc','tcs','chennai','in');
+
+1 row created.
+
+insert into stock values('2','jva','dxc','ban','aus');
+
+1 row created.
+
+ select * from stock;
+
+       SID SNAME                SCOM                 SPLS
+---------- -------------------- -------------------- --------------------
+SCON
+--------------------
+         1 choc                 tcs                  chennai
+in
+
+         2 jva                  dxc                  ban
+aus
+
+
+SQL> create table sales
+  2  (
+  3  said int primary key,
+  4  sid int references stock(sid),
+  5  saco varchar(20),
+  6  sanam varchar(20),
+  7  sacon varchar(20)
+  8  );
+
+Table created.
+
+SQL> insert into sales values('1','1','tcs','chennai','in');
+
+1 row created.
+
+SQL> insert into sales values('3','1','tcs','chennai','in');
+
+1 row created.
+
+SQL> select * from sales
+  2
+SQL> select * from sales;
+
+      SAID        SID SACO                 SANAM
+---------- ---------- -------------------- --------------------
+SACON
+--------------------
+         1          1 tcs                  chennai
+in
+
+         3          1 tcs                  chennai
+in
+
+------------------------------------------
+(2)
+SQL> select current_date from dual; // current date
+
+CURRENT_D
+---------
+28-JUL-20
+
+SQL> select sessiontimezone from dual;
+
+SESSIONTIMEZONE
+---------------------------------------------------------------------------
++05:30
+
+SQL> select current_date,sessiontimezone from dual; // current date and time
+
+CURRENT_D
+---------
+SESSIONTIMEZONE
+---------------------------------------------------------------------------
+28-JUL-20
++05:30
+
+ select sysdate from dual;
+
+SYSDATE
+---------
+28-JUL-20
+
+ Select to_char(sysdate,’DAY’)"Today" FROM DUAL; // current day
+
+Today
+------------------------------------
+TUESDAY
+
+ select sysdate+10 from dual; // date after 10 days
+
+SYSDATE+1
+---------
+07-AUG-20

@@ -1,0 +1,88 @@
+ create table chk                                         // for check constraint
+  2  (
+  3  empis int,
+  4  age int check(age between 24 and 58),
+  5  empname varchar(20)
+  6  );
+
+Table created.
+
+SQL> insert into chk(age) values(26);
+
+1 row created.
+
+
+SQL> insert into chk(age) values(34);
+
+1 row created.
+
+SQL> select * from chk;
+
+     EMPIS        AGE EMPNAME
+---------- ---------- --------------------
+                   26
+                   34
+
+------------------------------------------------------------------------------------------
+
+SQL> create table uss                      // for case sensitive
+  2  (
+  3  name varchar(20),
+  4  pass varchar(20)
+  5  );
+
+Table created.
+
+SQL> insert into uss values('bob','pas');
+
+1 row created.
+
+SQL> insert into uss values('bobby','pass');
+
+1 row created.
+
+SQL> select *from uss;
+
+NAME                 PASS
+-------------------- --------------------
+bob                  pas
+bobby                pass
+
+SQL> select * from uss
+  2  where uname='Bob';
+where uname='Bob'
+      *
+ERROR at line 2:
+ORA-00904: "UNAME": invalid identifier
+
+
+SQL> select * from uss
+  2  where name='Bob';
+
+no rows selected
+
+SQL> select * from uss
+  2  where name='bob';
+
+NAME                 PASS
+-------------------- --------------------
+bob                  pas
+
+SQL> select * from uss
+  2  where upper(name)='BoBbY';
+
+no rows selected
+
+SQL> select * from uss
+  2  where upper(name)='BOBBY';
+
+NAME                 PASS
+-------------------- --------------------
+bobby                pass
+
+SQL> select * from uss
+  2  where upper(name)=upper('BoBbY');
+
+NAME                 PASS
+-------------------- --------------------
+bobby                pass

@@ -1,0 +1,92 @@
+create table trg
+(
+uname varchar(20)
+);
+
+create trigger trg_demo
+after insert
+on trg
+begin
+dbms_output.put_line('trigger executed');
+end;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+create table do
+(
+uname varchar(20),
+pass varchar(20)
+);
+
+create table do_bkp
+(
+uname varchar(20),
+pass varchar(20)
+);
+
+insert into do values('hustle','u cnt');
+insert into do values('loyality','see');
+insert into do values('respect','me');
+
+create or replace trigger trg_bka
+before insert
+on do
+for each row
+begin
+insert into do_bkp  values(:NEW.uname,:NEW.pass); 
+end;
+/
+
+
+insert into do values('hustle','u cnt');
+insert into do values('loyality','see');
+insert into do values('respect','me');
+
+ select * from do;
+
+UNAME                PASS
+-------------------- --------------------
+hustle               u cnt
+loyality             see
+respect              me
+hustle               u cnt
+loyality             see
+respect              me
+
+6 rows selected.
+
+SQL> select * from do_bkp;
+
+UNAME                PASS
+-------------------- --------------------
+
+
+
+hustle               u cnt
+loyality             see
+respect              me
+
+6 rows selected.
+

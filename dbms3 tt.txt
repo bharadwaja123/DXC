@@ -1,0 +1,77 @@
+TimeTable
+-- day
+-- session (key word)
+--- room_no
+---- faculty_name
+--- sem
+-- subject
+
+
+day   sess   room   faculty    sem   subject
+mon   1       r1            raj           1         java
+mon   1      r2             ram         1          jee  // invalid stud busy
+
+mon   1      r2             ram         3         JAVA   valid
+mon   1      r1             john         5        DBMS   invalid
+mon   2      r1             john         5        DBMS   valid
+tue     1      r1             john         5        DBMS   valid
+
+
+
+
+
+
+create table tt                            //timetable uniqueness....
+(
+day varchar(20),
+sess int ,
+room varchar(20),
+faculty varchar(20),
+sem int ,
+subject varchar(20),
+constraint ramos unique(day,sess,room),
+constraint ronaldo unique(day,sess,faculty),
+constraint lio unique(day,sess,sem)
+);
+
+
+SQL> insert into tt values('mon','1','r1','raj','1','java');
+
+1 row created.
+
+SQL> insert into tt values('mon','1','r2','ram','1','jee');
+insert into tt values('mon','1','r2','ram','1','jee')
+*
+ERROR at line 1:
+ORA-00001: unique constraint (MESSI.LIO) violated
+
+
+SQL> insert into tt values('mon','1','r2','raj','3','jee');
+insert into tt values('mon','1','r2','raj','3','jee')
+*
+ERROR at line 1:
+ORA-00001: unique constraint (MESSI.RONALDO) violated
+
+
+SQL> insert into tt values('mon','1','r1','raju','3','jee');
+insert into tt values('mon','1','r1','raju','3','jee')
+*
+ERROR at line 1:
+ORA-00001: unique constraint (MESSI.RAMOS) violated
+
+
+SQL> insert into tt values('mon','2','r4','raju','3','jee');
+
+1 row created.
+
+SQL> select * from tt;
+
+DAY                        SESS ROOM                 FACULTY
+-------------------- ---------- -------------------- --------------------
+       SEM SUBJECT
+---------- --------------------
+mon                           1 r1                   raj
+         1 java
+
+mon                           2 r4                   raju
+         3 jee
