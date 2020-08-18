@@ -1,0 +1,116 @@
+
+public class cars {
+int manfacYear;
+private String name;
+public int getManfacYear() {
+	return manfacYear;
+}
+public void setManfacYear(int manfacYear) {
+	this.manfacYear = manfacYear;
+}
+public String getName() {
+	return name;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public cars(int manfacYear, String name) {
+	super();
+	this.manfacYear = manfacYear;
+	this.name = name;
+}
+@Override
+public String toString() {
+	return "cars [manfacYear=" + manfacYear + ", name=" + name + "]";
+}
+
+
+}
+
+================================================
+import java.util.List;
+
+public class showroom {
+	private String Showroomname;
+	 private int address;
+	 List<cars> car;
+	public String getShowroomname() {
+		return Showroomname;
+	}
+	public void setShowroomname(String showroomname) {
+		Showroomname = showroomname;
+	}
+	public int getAddress() {
+		return address;
+	}
+	public void setAddress(int address) {
+		this.address = address;
+	}
+	public  List<cars> getCar() {
+		return car;
+	}
+	public void setCar(List<cars> car) {
+		this.car = car;
+	}
+	public showroom(String showroomname, int address, List<cars> car) {
+		super();
+		Showroomname = showroomname;
+		this.address = address;
+		this.car = car;
+	}
+	@Override
+	public String toString() {
+		return "showroom [Showroomname=" + Showroomname + ", address=" + address + ", car=" + car + "]";
+	}
+	 
+}
+
+======================================================================================
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class mainc {
+	Map<String,List<cars>> carstore;
+	public void displayCarsByShowroomname(String Showroomname)
+	{
+	List<cars> cars=carstore.get(Showroomname);
+	for(cars car:cars){
+	System.out.println(car);
+	}
+
+	}
+	public static void main(String[] args) {
+		cars c1=new cars(2012,"Toyota camry");
+		cars c2=new cars(2012,"Nissan");
+		cars c3=new cars(2015,"Maruthi");
+		cars c4=new cars(2015,"Hyundai");
+		List<cars> car=new ArrayList<cars>();
+		
+	    car.add(c1);
+	    car.add(c2);
+	    car.add(c3);
+	    car.add(c4);
+	   showroom show=new showroom("Service",90, car);
+	  
+	cars c5=new cars(2013,"Hyundai");
+	cars c6=new cars(2016,"Tata");
+	cars c7=new cars(2017,"Polo");
+	List<cars> car1=new ArrayList<cars>();
+	car1.add(c5);
+	car1.add(c6);
+	car1.add(c7);
+	//Show showroom1=new Show("Service 2", cars1);
+	 
+	  mainc m= new mainc();
+
+	  m.carstore=new HashMap<String,List<cars>>();
+	  m.carstore.put(show.getShowroomname(), show.getCar());
+	 // m.carstore.put(showroom1.getShowroomname(),showroom1.getCars());
+
+
+	  m.displayCarsByShowroomname("Service");
+
+}}
