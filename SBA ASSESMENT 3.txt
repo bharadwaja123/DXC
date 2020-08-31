@@ -1,0 +1,970 @@
+
+=======Database part==============
+
+create table students
+   (
+stud_id int, 
+stud_name varchar(50), 
+sem int
+);
+
+create table attendance
+ (
+stud_id int, 
+stud_name varchar(50), 
+sem int,
+ attd_date date, 
+attendance varchar(10)
+);
+
+====================================
+
+========================DB util part=====================
+
+package com.student.util;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+public class DbConnection {
+	public static Connection getConnect()	{
+		try	{
+			Class.forName("oracle.jdbc.OracleDriver");
+			Connection con=DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "dxcfs", "pass");			
+			return con;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+
+}
+
+
+==========java Demo part========
+
+####student part
+
+package com.student.dem0;
+
+public class Student {
+
+	private int studId;
+	private String studName;
+	private int sem;
+	public int getStudId() {
+		return studId;
+	}
+	public void setStudId(int studId) {
+		this.studId = studId;
+	}
+	public String getStudName() {
+		return studName;
+	}
+	public void setStudName(String studName) {
+		this.studName = studName;
+	}
+	public int getsem() {
+		return sem;
+	}
+	public void setsem(int sem) {
+		this.sem = sem;
+	}
+	public Student(int studId, String studName, int sem) {
+		super();
+		this.studId = studId;
+		this.studName = studName;
+		this.sem = sem;
+	}
+	public Student() {
+		// TODO Auto-generated constructor stub
+	}
+	@Override
+	public String toString() {
+		return "Student [studId=" + studId + ", studName=" + studName + ", sem=" + sem + "]";
+	}
+	
+}
+
+-------------------------------------
+####Attendence part
+
+package com.student.dem0;
+import java.util.Date;
+
+public class Attendance {
+	
+	int studId;
+	String studName;
+	int sem;
+	Date attdDate;
+	String attendance;
+	
+	public Attendance(int studId, String studName, int sem, Date attdDate, String attendance) {
+		super();
+		this.studId = studId;
+		this.studName = studName;
+		this.sem = sem;
+		this.attdDate = attdDate;
+		this.attendance = attendance;
+	}
+
+	public int getStudId() {
+		return studId;
+	}
+
+	public void setStudId(int studId) {
+		this.studId = studId;
+	}
+
+	public String getStudName() {
+		return studName;
+	}
+
+	public void setStudName(String studName) {
+		this.studName = studName;
+	}
+
+	public int getSem() {
+		return sem;
+	}
+
+	public void setSem(int sem) {
+		this.sem = sem;
+	}
+
+	public Date getAttdDate() {
+		return attdDate;
+	}
+
+	public void setAttdDate(Date attdDate) {
+		this.attdDate = attdDate;
+	}
+
+	public String getAttendance() {
+		return attendance;
+	}
+
+	public void setAttendance(String attendance) {
+		this.attendance = attendance;
+	}
+	
+	@Override
+	public String toString() {
+		return "Attendance [studId=" + studId + ", studName=" + studName + ", sem=" + sem + ", attdDate=" + attdDate
+				+ ", attendance=" + attendance + "]";
+	}
+
+	public Attendance() {	}
+
+
+}
+
+==============java Dao part====================
+###Student 
+
+package com.student.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+
+import com.student.dem0.Attendance;
+import com.student.dem0.Student;
+import com.student.util.DbConnection;
+
+public class StudentDao {
+
+	
+	public ArrayList<Student> getStudentBySem(int sem)	{
+	try	{
+		Connection connection = DbConnection.getConnect();
+		
+		String sql = "select * from students where sem=?";
+
+		PreparedStatement stat = connection.prepareStatement(sql);
+		
+		
+		stat.setInt(1, sem);
+		ResultSet rs=stat.executeQuery();
+	
+		ArrayList<Student> studList=new ArrayList<>();
+
+		while(rs.next())	{
+			int studId = rs.getInt(1);
+			String studName = rs.getString(2);
+			int semester = rs.getInt(3);
+
+			
+			Student student = new Student(studId, studName, semester);				
+			studList.add(student);	
+					
+			}
+			
+			return studList;
+		}
+		catch(Exception e)	{
+			e.printStackTrace();
+		}
+	return null;		
+		
+	}
+	
+
+	public String saveAttendace(Attendance attendance)	{
+		try	{
+			Connection con = DbConnection.getConnect();
+			String sql = "insert into attendance values(?,?,?,?,?)";
+			PreparedStatement stat=con.prepareStatement(sql);
+			
+			stat.setInt(1, attendance.getStudId());
+			stat.setString(2, attendance.getStudName());
+			stat.setInt(3, attendance.getSem());
+						
+			java.util.Date ADate = attendance.getAttdDate();		
+			java.sql.Date AttdDate = new java.sql.Date(ADate.getYear(),ADate.getMonth(),ADate.getDate());					
+			stat.setDate(4, AttdDate);
+			
+			stat.setString(5, attendance.getAttendance());
+						
+			int res= stat.executeUpdate();
+			
+			System.out.println(attendance.getStudId());
+			
+			if(res>0)
+			return "Attendance saved!";	
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "Cannot save attendance";
+	}
+	
+	
+	
+	
+	
+	
+	public ArrayList<Student> getAllStudents()	{
+		try		{
+			Connection connection = DbConnection.getConnect();
+			String sql="select * from students";
+		
+			PreparedStatement stat = connection.prepareStatement(sql);
+			ResultSet rs= stat.executeQuery();
+		
+			ArrayList<Student> studList=new ArrayList<>();
+		
+			while(rs.next())	{
+				int studId = rs.getInt(1);
+				String studName = rs.getString(2);
+				int semester = rs.getInt(3);
+		
+				Student student = new Student(studId, studName, semester);				
+				studList.add(student);		
+			}
+			
+			return studList;	
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	
+	
+	
+		public Student getStudentById(int studId)	{
+			try {
+				Connection connection = DbConnection.getConnect();
+				String sql="select * from students where stud_id=?";
+				PreparedStatement stat=connection.prepareStatement(sql);
+
+				 stat.setInt(1, studId);
+		
+				 ResultSet rs= stat.executeQuery();
+				 
+				 if(rs.next())	{
+						int studId1 = rs.getInt(1);
+						String studName = rs.getString(2);
+						int semester = rs.getInt(3);
+						
+				
+						Student student = new Student(studId1, studName, semester);
+						System.out.println("HHH");
+						return student;	
+					}				
+			 }
+			 catch (Exception e) {
+				 e.printStackTrace();
+			 }
+
+			 return null;
+		}
+	
+	
+	
+	
+	
+	
+	
+	
+	public String saveStudent(Student student)	{
+		try	{
+			Connection con= DbConnection.getConnect();
+			String sql="insert into students values(?,?,?,?,?,?)";
+			PreparedStatement stat=con.prepareStatement(sql);
+			
+			stat.setInt(1, student.getStudId());
+			stat.setString(2, student.getStudName());
+			stat.setInt(3, student.getsem());
+			
+						
+			int res= stat.executeUpdate();
+			if(res>0)
+			return "Student details saved!";	
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "Cannot save student details";
+	}
+}
+
+----------------------------------------------------
+###Attendance part
+
+package com.student.dao;
+
+import java.sql.Connection;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Date;
+
+import com.student.dem0.Attendance;
+import com.student.util.DbConnection;
+
+public class AttendanceDao {
+
+
+	public ArrayList<Attendance> getAttendanceBySem(int rsem, Date attdDate)	{
+		try	{
+			Connection connection = DbConnection.getConnect();
+			
+			String sql = "select * from attendance where sem=? and attd_date=?";
+
+			PreparedStatement stat = connection.prepareStatement(sql);
+						
+			stat.setInt(1, rsem);
+//			stat.setDate(2, (Date) attdDate);
+			
+			
+//			java.util.Date ADate = attendance.getAttdDate();		
+			java.sql.Date atndDate = new java.sql.Date(attdDate.getYear(),attdDate.getMonth(),attdDate.getDate());					
+			stat.setDate(2, atndDate);
+			
+			
+			
+			ResultSet rs=stat.executeQuery();
+		
+			ArrayList<Attendance> attndList=new ArrayList<>();
+
+			while(rs.next())	{
+				int studId = rs.getInt(1);
+				String studName = rs.getString(2);
+				int semester = rs.getInt(3);
+		
+				
+//				java.util.Date arDate = attendance.getAttdDate();		
+//				java.sql.Date AttdDate = new java.sql.Date(arDate.getTime());					
+//				stat.setDate(4, AttdDate);
+				
+				
+				Date arDate2 = rs.getDate(4);
+				
+				String attendance = rs.getString(5);
+				
+				
+				Attendance attd = new Attendance(studId, studName, semester, arDate2, attendance);				
+				attndList.add(attd);	
+						
+			}
+				
+				return attndList;
+			}
+			catch(Exception e)	{
+				e.printStackTrace();
+			}
+		return null;		
+			
+		}
+}
+
+========================Servlets part=============
+### Mark Attendance
+
+package com.sba.main;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import java.util.ArrayList;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.student.dao.StudentDao;
+import com.student.dem0.Student;
+
+
+
+
+
+@WebServlet("/MarkAttendance")
+public class MarkAttendance extends HttpServlet {
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	
+		int sem = Integer.parseInt(req.getParameter("sem"));
+		
+		String aDate = req.getParameter("aDate");
+
+
+		PrintWriter out= resp.getWriter();
+		resp.setContentType("text/html");
+				
+		StudentDao dao = new StudentDao();
+		ArrayList<Student> studList2=dao.getStudentBySem(sem);
+
+			
+		HttpSession session= req.getSession();
+		session.setAttribute("studList2", studList2);	
+		
+		session.setAttribute("sem", sem);
+		session.setAttribute("aDate", aDate);
+
+		
+
+					
+		RequestDispatcher rd= req.getRequestDispatcher("StudListAttendance.jsp");
+		rd.forward(req, resp);	
+	
+	}
+}
+
+--------------------------------------------------------------------
+###Retrieve Attendance
+
+package com.sba.main;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.student.dao.AttendanceDao;
+import com.student.dem0.Attendance;
+
+
+
+@WebServlet("/RetrieveAttendance")
+public class RetrieveAttendance extends HttpServlet {
+	
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		
+		int rsem = Integer.parseInt(req.getParameter("rsem"));
+		
+		String arDate = req.getParameter("arDate");
+
+		System.out.println(arDate);
+		PrintWriter out= resp.getWriter();
+		resp.setContentType("text/html");
+				
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+		Date attdDate=null;
+		try {
+			 attdDate = sdf.parse(arDate);
+		} 
+		catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+
+		AttendanceDao dao = new AttendanceDao();
+		System.out.println("att "+attdDate);
+		ArrayList<Attendance> attdList= dao.getAttendanceBySem(rsem, attdDate);
+			
+			
+		HttpSession session= req.getSession();
+		session.setAttribute("attdList", attdList);	
+		
+		session.setAttribute("rsem", rsem);
+		session.setAttribute("attdDate", attdDate);
+
+					
+		RequestDispatcher rd= req.getRequestDispatcher("DisplayAttendanceJSTL.jsp");
+		rd.forward(req, resp);
+	}
+}
+
+----------------------------------------------------------------------------------
+###Success Srv
+
+package com.sba.main;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.student.dao.StudentDao;
+import com.student.dem0.Attendance;
+import com.student.dem0.Student;
+
+
+
+@WebServlet("/successSrv")
+public class successSrv extends HttpServlet {
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		
+		
+		HttpSession session= req.getSession();
+
+
+		
+		int sem = (int)session.getAttribute("sem");
+		
+		//String aDate = (String)session.getAttribute("aDate");
+		
+		
+	
+		
+
+		String[] datas=req.getParameterValues("status");
+		for(String data:datas)
+		{
+			
+		System.out.println(data);
+		}
+	
+		ArrayList<Student> prstStud =new ArrayList<>();
+
+
+		PrintWriter out= resp.getWriter();
+		resp.setContentType("text/html");
+					
+		StudentDao dao=new StudentDao();
+	
+	
+		for(String data:datas)	{
+
+			String id = data;	
+			Student s=dao.getStudentById(Integer.parseInt(id));
+			prstStud.add(s);
+			
+		}
+	
+		
+
+		
+			
+		ArrayList<Student> studList3=(ArrayList<Student>) session.getAttribute("studList2");
+		ArrayList<Student> studList4=new ArrayList<Student>();
+		int j=0;
+		for(Student st:studList3) {	
+		
+			if((j<datas.length) && st.getStudId()==Integer.parseInt(datas[j])) {
+				j++;					
+			}
+			else	{				
+				int absntStuds = st.getStudId();
+			studList4.add(st);
+			
+			}
+		}
+		
+		j=0;
+		int f1=0;
+		Attendance attendance1[] = new Attendance[prstStud.size()];
+		for(Student stud:prstStud)
+		{
+			int studId = stud.getStudId();
+			String studName = stud.getStudName();
+			int semester = stud.getsem();
+
+			
+			//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			Date attdDate=new Date();
+			
+			attendance1[j] = new Attendance(studId, studName, semester, attdDate, "Present");
+
+				
+		String atd1 = dao.saveAttendace(attendance1[j]);
+		j++;
+		//out.print(atd1);
+		if(atd1.equals("Cannot save attendance"))
+		{
+			f1=1;
+		}
+		
+	}
+		if(f1==1)
+			out.print("Cannot save attendance\n");
+		else
+			out.print("Attendance saved!\n");
+	
+		
+		j=0;
+		int f=0;
+		Attendance attendance[] =new Attendance[studList4.size()];
+		for(Student stud:studList4)
+		{
+			int studId = stud.getStudId();
+			String studName = stud.getStudName();
+			int semester = stud.getsem();
+
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			Date attdDate=new Date();
+						attendance[j] = new Attendance(studId, studName, semester, attdDate, "Absent");
+
+		
+		
+		String atd = dao.saveAttendace(attendance[j]);
+		j++;
+		if(atd.equals("Cannot save attendance"))
+		{
+			f=1;
+		}
+		
+	}
+		if(f==1)
+			out.print("Cannot save attendance\n");
+		else
+			out.print("Attendance saved!\n");
+				
+		
+		
+
+	}
+	
+}
+
+=======================JSP part====================
+###First part semester selection
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Attendance Marking</title>
+</head>
+
+<style type="text/css">
+
+body
+{
+background: url("img2.jpg");
+background-repeat: no-repeat;
+background-size: cover;
+}
+
+#sbt3
+{
+background-color:orange;
+font-family:Lucida Calligraphy;
+font-size: 15px;
+height:30px;
+}
+
+</style>
+
+<body>
+
+<form action="MarkAttendance">
+<center><h1><b><i>STUDENT ATTENDANCE REGISTER</h1></center>
+<center><h2>Welcome please select your semester below </h2></center>
+<center>
+Semester: <select name="sem">
+<option>Select semester</option>
+
+<option value="1"  style="background-color: orange ;font-size: 20px;"> sem 1</option>
+<option value="2"  style="background-color: grey ;font-size: 20px;"> sem 2</option>
+<option value="3"  style="background-color: green ;font-size: 20px;"> sem 3</option>
+<option value="4"  style="background-color: orange ;font-size: 20px;"> sem 4</option>
+<option value="5"  style="background-color: grey ;font-size: 20px;"> sem 5</option>
+<option value="6"  style="background-color: green ;font-size: 20px;"> sem 6</option>
+</select>
+
+<br><br>
+<input type="submit" id="sbt3" value="mark attendance">
+</center>
+</form>
+
+</body>
+</html>
+
+--------------------------------------------------------------------------
+##Display Attendance
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    
+    
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+	<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+	
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Diplaying Attendance</title>
+
+<style type="text/css">
+
+td
+{
+background-color: #e5a5fa;
+font-family:Lucida Calligraphy;
+font-size: 25px;
+height:50px;
+}
+
+</style>
+
+</head>
+<body>
+
+
+
+<table width="50%">
+
+<c:forEach var="attnd" items="${attdList}">	
+<tr>
+	
+	<td>${attnd.getStudId()}</td>
+	<td>${attnd.getStudName()}</td>
+	<td>${attnd.getAttdDate()}</td>
+	<td>${attnd.getAttendance()}</td>
+	
+	
+</tr>
+
+
+</c:forEach>
+
+</table>
+
+
+
+</body>
+</html>
+
+---------------------------------------------------------------------
+###StudList Attendance
+
+<%@page import="com.student.dem0.Student"%>
+<%@page import="java.text.ParseException"%>
+
+<%@page import="java.util.Date"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="com.student.dao.StudentDao"%>
+
+<%@page import="java.util.ArrayList"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    
+<!DOCTYPE html>
+<html>
+
+<style type="text/css">
+
+td
+{
+background-color: #a5facf;
+font-family:Lucida Calligraphy;
+font-size: 25px;
+}
+
+#sbt 
+{
+background-color: orange;
+color:white;
+width:200px;
+height:50px;
+}
+
+#chkb 
+{
+width:20px;
+height:30px;
+}
+
+</style>
+
+<meta charset="ISO-8859-1">
+<title>Attendance Marking</title>
+</head>
+
+<body>
+
+
+<form action="successSrv">
+<table width="50%" >
+
+<tr> 
+<td>Student Id</td> 
+<td>Student Name</td>  
+</tr>
+
+
+
+<%
+
+
+
+
+ArrayList<Student> studList2=(ArrayList<Student>) session.getAttribute("studList2");
+
+for(Student stud:studList2)	{
+	out.print("<tr>");
+	
+	out.print("<td>"+stud.getStudId()+"</td>");
+	out.print("<td>"+stud.getStudName()+"</td>");
+	out.print("<td> <input type='checkbox' id='chkb' name='status' value='"+stud.getStudId()+"'> </td>");
+	
+	out.print("</tr>");	
+}
+
+	session.setAttribute("studList2", studList2);
+
+%>
+
+</table>
+
+
+<tr><td></td><td><input type="submit" id="sbt"></td></tr>
+
+<%           
+
+
+int sem = (int)session.getAttribute("sem");
+
+String aDate = (String)session.getAttribute("aDate");
+
+
+session.setAttribute("sem", sem);
+session.setAttribute("aDate", aDate);
+
+
+%>
+
+
+</form>
+
+
+</body>
+</html>
+
+---------------------------------------------------------------------
+###Retrieve result
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Students Attendance Retrieving</title>
+</head>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css" />
+<script src="http://code.jquery.com/jquery-1.8.2.js"></script>
+<script src="http://code.jquery.com/ui/1.9.1/jquery-ui.js"></script>
+<script type="text/javascript">
+$(function() {
+var date = new Date();
+var currentMonth = date.getMonth();
+var currentDate = date.getDate();
+var currentYear = date.getFullYear();
+$('#datepicker').datepicker({
+maxDate: new Date(currentYear, currentMonth, currentDate)
+});
+});
+</script>
+<style type="text/css">
+
+#sbt2
+{
+background-color: orange;
+font-family:Lucida Calligraphy;
+font-size: 15px;
+height:30px;
+}
+
+</style>
+
+
+<body>
+
+<form action="RetrieveAttendance">
+<center>
+Select date: <input type="text" id="datepicker" name="arDate">
+<br><br>
+
+Semester: <select name="rsem">
+<option>Select semester</option>
+<option value="1"> Sem 1 </option>
+<option value="2"> Sem 2 </option>
+<option value="3"> Sem 3 </option>
+<option value="4"> Sem 4 </option>
+<option value="5"> Sem 5 </option>
+<option value="6"> Sem 6 </option>
+</select>
+
+<br><br>
+<input type="submit" id="sbt2" value="Retrieve Attendance">
+</center>
+</form>
+
+</body>
+</html>
