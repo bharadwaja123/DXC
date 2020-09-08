@@ -1,0 +1,868 @@
+========Hybernate.cfg.xml
+
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>        
+  <session-factory>
+    <property name="hibernate.dialect">org.hibernate.dialect.OracleDialect</property>
+    <property name="show_sql">true</property>
+    <property name="hibernate.connection.pool_size">1</property>
+    <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+    <property name="hbm2ddl.auto">update</property>
+
+    <mapping class="com.myplayer.trail.model.Player1"/>
+
+  </session-factory>
+</hibernate-configuration>
+
+====Model Class========
+
+package com.myplayer.trail.model;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+public class Player1 {
+
+	
+	public String playerName;
+	@Id
+	public int playerId;
+	public String playerCity;
+	public String getPlayerName() {
+		return playerName;
+	}
+	public void setPlayerName(String playerName) {
+		this.playerName = playerName;
+	}
+	public int getPlayerId() {
+		return playerId;
+	}
+	public void setPlayerId(int playerId) {
+		this.playerId = playerId;
+	}
+	public String getPlayerCity() {
+		return playerCity;
+	}
+	public void setPlayerCity(String playerCity) {
+		this.playerCity = playerCity;
+	}
+	public Player1(String playerName, int playerId, String playerCity) {
+		super();
+		this.playerName = playerName;
+		this.playerId = playerId;
+		this.playerCity = playerCity;
+	}
+	@Override
+	public String toString() {
+		return "Player1 [playerName=" + playerName + ", playerId=" + playerId + ", playerCity=" + playerCity + "]";
+	}
+	public Player1() {
+		// TODO Auto-generated constructor stub
+	}
+}
+
+=====Dao class=====
+
+package com.myplayer.trail.dao;
+
+import java.util.ArrayList;
+
+import javax.transaction.Transactional;
+
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.myplayer.trail.model.Player1;
+
+
+
+@Transactional
+public class PlayerDao {
+
+	@Autowired
+	SessionFactory factory;
+	public PlayerDao() {
+		// TODO Auto-generated constructor stub
+	}
+	public PlayerDao(SessionFactory factory) {
+		super();
+		this.factory = factory;
+	}
+	
+	public String savePlayer(Player1 player1)
+	{
+		try {
+			Session session=factory.getCurrentSession();
+			session.save(player1);
+			return "player saved";
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return "player not saved";
+	}
+	
+	
+	public ArrayList<Player1>searchPlayerbyName(String playerName)
+	{
+		try
+		{
+		Session session=factory.getCurrentSession();
+		Criteria crit= session.createCriteria(Player1.class);
+		Query query=session.createQuery("from Player1 a where a.playerName=:playerName");
+		query.setParameter("playerName",playerName);
+		ArrayList<Player1> au=(ArrayList<Player1>)query.list();
+		return au;
+	}
+		catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return null;
+}
+	public ArrayList<Player1> searchPlayerById(int playerId){
+		Session session=factory.openSession();
+		Criteria ct=session.createCriteria(Player1.class);
+		ct.add(Restrictions.eq("playerId", playerId));
+
+		ArrayList<Player1> player=(ArrayList<Player1>) ct.list();
+		return player;
+	}
+
+	public String delVal(String playerName)
+	{
+		try
+		{
+			Session session=factory.getCurrentSession();	
+			String au="delete from Player1 a where a.playerName=:playerName";
+			Query query=session.createQuery(au);
+			query.setParameter("playerName",playerName);
+			int res=query.executeUpdate();
+			if(res>0)
+				return "done bro";
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return "not done delete";
+	}
+	
+	public String delValuebyCity(String playerCity)
+	{
+		try
+		{
+			Session session=factory.getCurrentSession();	
+	
+			  String au="delete from Player1 a where a.playerCity=:playerCity"; Query
+			  query=session.createQuery(au); query.setParameter("playerCity",playerCity);
+			  int res=query.executeUpdate(); if(res>0)
+			 
+				return "done bro";
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return "not done delete";
+	}
+	public Player1 getplayerById(int playerId){
+		try{
+		Session session=factory.getCurrentSession();
+		Player1 author=(Player1)session.get(Player1.class,playerId);
+		return author;
+		}
+		catch (Exception e) {
+		// TODO: handle exception
+		e.printStackTrace();
+		}
+		return null;
+	}
+	public String updatePlayer(Player1 player)
+	{
+		try {
+			Session session=factory.getCurrentSession();
+			session.update("Player1",player);
+			return "done update";
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return "not done";
+	}
+}
+
+===Home Controller====
+
+package com.myplayer.trail.dao;
+
+import java.util.ArrayList;
+
+import javax.transaction.Transactional;
+
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.myplayer.trail.model.Player1;
+
+
+
+@Transactional
+public class PlayerDao {
+
+	@Autowired
+	SessionFactory factory;
+	public PlayerDao() {
+		// TODO Auto-generated constructor stub
+	}
+	public PlayerDao(SessionFactory factory) {
+		super();
+		this.factory = factory;
+	}
+	
+	public String savePlayer(Player1 player1)
+	{
+		try {
+			Session session=factory.getCurrentSession();
+			session.save(player1);
+			return "player saved";
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return "player not saved";
+	}
+	
+	
+	public ArrayList<Player1>searchPlayerbyName(String playerName)
+	{
+		try
+		{
+		Session session=factory.getCurrentSession();
+		Criteria crit= session.createCriteria(Player1.class);
+		Query query=session.createQuery("from Player1 a where a.playerName=:playerName");
+		query.setParameter("playerName",playerName);
+		ArrayList<Player1> au=(ArrayList<Player1>)query.list();
+		return au;
+	}
+		catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return null;
+}
+	public ArrayList<Player1> searchPlayerById(int playerId){
+		Session session=factory.openSession();
+		Criteria ct=session.createCriteria(Player1.class);
+		ct.add(Restrictions.eq("playerId", playerId));
+
+		ArrayList<Player1> player=(ArrayList<Player1>) ct.list();
+		return player;
+	}
+
+	public String delVal(String playerName)
+	{
+		try
+		{
+			Session session=factory.getCurrentSession();	
+			String au="delete from Player1 a where a.playerName=:playerName";
+			Query query=session.createQuery(au);
+			query.setParameter("playerName",playerName);
+			int res=query.executeUpdate();
+			if(res>0)
+				return "done bro";
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return "not done delete";
+	}
+	
+	public String delValuebyCity(String playerCity)
+	{
+		try
+		{
+			Session session=factory.getCurrentSession();	
+	
+			  String au="delete from Player1 a where a.playerCity=:playerCity"; Query
+			  query=session.createQuery(au); query.setParameter("playerCity",playerCity);
+			  int res=query.executeUpdate(); if(res>0)
+			 
+				return "done bro";
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return "not done delete";
+	}
+	public Player1 getplayerById(int playerId){
+		try{
+		Session session=factory.getCurrentSession();
+		Player1 author=(Player1)session.get(Player1.class,playerId);
+		return author;
+		}
+		catch (Exception e) {
+		// TODO: handle exception
+		e.printStackTrace();
+		}
+		return null;
+	}
+	public String updatePlayer(Player1 player)
+	{
+		try {
+			Session session=factory.getCurrentSession();
+			session.update("Player1",player);
+			return "done update";
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return "not done";
+	}
+}
+
+=======servlet context.xml===
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:mvc="http://www.springframework.org/schema/mvc"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://www.springframework.org/schema/beans"
+xmlns:context="http://www.springframework.org/schema/context"
+xmlns:tx="http://www.springframework.org/schema/tx"
+xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+
+<!-- Enables the Spring MVC @Controller programming model -->
+<mvc:annotation-driven />
+
+<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+<mvc:resources mapping="/resources/**" location="/resources/" />
+
+<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+<property name="prefix" value="/WEB-INF/views/" />
+<property name="suffix" value=".jsp" />
+</bean>
+
+<context:component-scan base-package="com.myplayer.trail" />
+
+
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@127.0.0.1:1521:xe"/>
+        <property name="username" value="dxcfs"/>
+        <property name="password" value="pass"/>
+    </bean>
+   
+    <bean id="sessionFactory"
+        class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+<property name="configLocation" value="classpath:hibernate.cfg.xml" />
+    </bean>
+   
+    <tx:annotation-driven />
+
+    <bean id="transactionManager"
+        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+ 
+<bean id="authorDao" class="com.myplayer.trail.dao.PlayerDao">
+   <constructor-arg>
+       <ref bean="sessionFactory" />
+   </constructor-arg>
+</bean>    
+</beans>
+
+===pom.xml====
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<modelVersion>4.0.0</modelVersion>
+<groupId>net.codejava</groupId>
+<artifactId>SpringMvcHibernateXML</artifactId>
+<name>SpringMvcHibernateXML</name>
+<packaging>war</packaging>
+<version>1.0.0-BUILD-SNAPSHOT</version>
+
+<properties>
+<java-version>1.7</java-version>
+<org.springframework-version>4.0.3.RELEASE</org.springframework-version>
+</properties>
+
+<dependencies>
+
+<dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjrt</artifactId>
+    <version>1.6.11</version>
+</dependency>
+
+<dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>slf4j-api</artifactId>
+    <version>1.7.23</version>
+</dependency>
+
+
+
+<!-- Spring -->
+<dependency>
+<groupId>org.springframework</groupId>
+<artifactId>spring-context</artifactId>
+<version>${org.springframework-version}</version>
+</dependency>
+
+<dependency>
+<groupId>org.springframework</groupId>
+<artifactId>spring-webmvc</artifactId>
+<version>${org.springframework-version}</version>
+</dependency>
+<dependency>
+<groupId>org.springframework</groupId>
+<artifactId>spring-orm</artifactId>
+<version>${org.springframework-version}</version>
+<type>jar</type>
+<scope>compile</scope>
+</dependency>
+
+<!-- Hibernate -->
+<dependency>
+<groupId>org.hibernate</groupId>
+<artifactId>hibernate-core</artifactId>
+<version>4.3.5.Final</version>
+</dependency>
+
+<!-- Servlet -->
+<dependency>
+<groupId>javax.servlet</groupId>
+<artifactId>javax.servlet-api</artifactId>
+<version>3.1.0</version>
+<scope>provided</scope>
+</dependency>
+<dependency>
+<groupId>javax.servlet.jsp</groupId>
+<artifactId>javax.servlet.jsp-api</artifactId>
+<version>2.3.1</version>
+<scope>provided</scope>
+</dependency>
+<dependency>
+<groupId>jstl</groupId>
+<artifactId>jstl</artifactId>
+<version>1.2</version>
+</dependency>
+
+<!-- Apache Database Connection Pool -->
+<!-- https://mvnrepository.com/artifact/commons-dbcp/commons-dbcp -->
+<dependency>
+   <groupId>commons-dbcp</groupId>
+   <artifactId>commons-dbcp</artifactId>
+   <version>1.4</version>
+</dependency>
+ 
+</dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <version>2.9</version>
+                <configuration>
+                    <additionalProjectnatures>
+                        <projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
+                    </additionalProjectnatures>
+                    <additionalBuildcommands>
+                        <buildcommand>org.springframework.ide.eclipse.core.springbuilder</buildcommand>
+                    </additionalBuildcommands>
+                    <downloadSources>true</downloadSources>
+                    <downloadJavadocs>true</downloadJavadocs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5.1</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <compilerArgument>-Xlint:all</compilerArgument>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <mainClass>org.test.int1.Main</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+=============JSP Pages==========
+
+----------------home.jsp---------
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+<html>
+<head>
+	<title></title>
+<style>
+input[type=submit] {
+font-family: Trebuchet MS;
+background-color: black;
+border-color: black;
+border-width: 2px solid black;
+text-decoration: none;
+color: white;
+padding: 10px 60px;
+margin: 20px 20px;
+cursor: pointer;
+}
+input[type=submit]:hover {
+background-color: white;
+color: black;
+}
+input[type=text], select {
+  width: 50%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+</style>
+</head>
+<body bgcolor="black">
+<br>
+<center>
+<div style="background-color: black">
+<font face="Trebuchet MS" size="8" color="white">Welcome To Player Portal</font>
+</div>
+<div style="background-color: white;width: 550px;height: 400px">
+<font face="Trebuchet MS" size="5">Select the options to Save,Search,Delete and Update Player</font>
+
+<table>
+<form action="savePage">
+<tr><td><input type="submit" value="LoadSavePage"></td></tr>
+</form>
+
+<form action="searchPage">
+
+<tr><td><input type="submit" value="LoadSearchPage"></td></tr>
+</form>
+
+<form action="deletePage">
+
+<tr><td><input type="submit" value="LoadDeletePage"></td></tr>
+</form>
+
+<form action="updatePage">
+<tr><td><input type="submit" value="LoadUpdatePage"></td></tr>
+</form>
+</table>
+</right>
+</body>
+</html>
+
+---------savePage.jsp-------------
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+<html>
+<head>
+	<title>Home</title>
+<style>
+input[type=submit] {
+font-family: Trebuchet MS;
+background-color: black;
+border-color: black;
+border-width: 2px solid black;
+text-decoration: none;
+color: white;
+padding: 10px 60px;
+margin: 20px 20px;
+cursor: pointer;
+}
+input[type=submit]:hover {
+background-color: white;
+color: black;
+}
+input[type=text], select {
+  width: 50%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+</style>
+</head>
+<body bgcolor="black">
+<br>
+<center>
+<div style="background-color: black">
+<font face="Trebuchet MS" size="8" color="white">Welcome To Player Portal</font>
+</div>
+<div style="background-color: white;width: 550px;height: 350px">
+<font face="Trebuchet MS" size="5">Fill the details to create Player.</font>
+
+<table>
+<form action="display">
+<tr><td><input type="playerName" name="playerName" placeholder="playerName"></td></tr>
+<br>
+<tr><td><input type="playerId" name="playerId" placeholder="playerId"></td></tr>
+<br>
+<tr><td><input type="playerCity" name="playerCity" placeholder="playerCity"></td></tr>
+<br>
+<tr><td><input type="submit" value="save player"></td></tr>
+</form>
+</table>
+</body>
+</html>
+
+------------display.jsp---------------
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+<html>
+<head>
+	<title>Home</title>
+</head>
+<body>
+<h1>
+	Player Save!  
+</h1>
+
+<P>   ${status}. </P>
+</body>
+</html>
+
+------------searchPage.jsp----------
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+<html>
+<head>
+	<title>Home</title>
+<style>
+input[type=submit] {
+font-family: Trebuchet MS;
+background-color: black;
+border-color: black;
+border-width: 2px solid black;
+text-decoration: none;
+color: white;
+padding: 10px 60px;
+margin: 20px 20px;
+cursor: pointer;
+}
+input[type=submit]:hover {
+background-color: white;
+color: black;
+}
+input[type=text], select {
+  width: 50%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+</style>
+</head>
+<body bgcolor="black">
+<br>
+<center>
+<div style="background-color: black">
+<font face="Trebuchet MS" size="8" color="white">Welcome To Player Portal</font>
+</div>
+<div style="background-color: white;width: 550px;height: 350px">
+<font face="Trebuchet MS" size="5">Fill the details to search Player.</font><br><br>
+<table>
+<form action="Name">
+<tr><td><input type="playerName" name="playerName" placeholder="playerName"></td></tr>
+<br>
+<tr><td><input type="submit" value="searchByName"></td></tr>
+</form>
+<form action="Names">
+<tr><td><input type="playerId" name="playerId" placeholder="playerId"></td></tr>
+<br>
+<tr><td><input type="submit" value="searchById"></td></tr>
+</form>
+</table>
+</body>
+</html>
+
+---------Name.jsp----------------
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+<html>
+<head>
+	<title>Home</title>
+</head>
+<body>
+<h1>
+	Player Search!  
+</h1>
+
+<P>   ${status}. </P>
+</body>
+</html>
+
+-------deletePage.jsp-----------
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+<html>
+<head>
+	<title>Home</title>
+<style>
+input[type=submit] {
+font-family: Trebuchet MS;
+background-color: black;
+border-color: black;
+border-width: 2px solid black;
+text-decoration: none;
+color: white;
+padding: 10px 60px;
+margin: 20px 20px;
+cursor: pointer;
+}
+input[type=submit]:hover {
+background-color: white;
+color: black;
+}
+input[type=text], select {
+  width: 50%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+</style>
+</head>
+<body bgcolor="black">
+<br>
+<center>
+<div style="background-color: black">
+<font face="Trebuchet MS" size="8" color="white">Welcome To Player Portal</font>
+</div>
+<div style="background-color: white;width: 550px;height: 350px">
+<font face="Trebuchet MS" size="5">Fill the details to delete Player.</font><br><br>
+
+<form action="del">
+<tr><td><input type="playerName" name="playerName" placeholder="playerName"></td></tr>
+<br>
+
+<tr><td><input type="submit" value="deleteByName"></td></tr>
+</form>
+<form action="dels">
+<tr><td><input type="playerCity" name="playerCity" placeholder="playerCity"></td></tr>
+<br>
+<tr><td><input type="submit" value="deletebyCity"></td></tr>
+</form>
+</body>
+</html>
+
+-----------------del.jsp--------------
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+<html>
+<head>
+	<title>Home</title>
+</head>
+<body>
+<h1>
+	Player Delete!  
+</h1>
+
+<P>   ${status}. </P>
+</body>
+</html>
+
+-------------updatePage.jsp-----------
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+<html>
+<head>
+<title>Update</title>
+<style>
+input[type=submit] {
+font-family: Trebuchet MS;
+background-color: black;
+border-color: black;
+border-width: 2px solid black;
+text-decoration: none;
+color: white;
+padding: 10px 60px;
+margin: 20px 20px;
+cursor: pointer;
+}
+input[type=submit]:hover {
+background-color: white;
+color: black;
+}
+input[type=text], select {
+  width: 50%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+</style>
+</head>
+<body bgcolor="black">
+<br>
+<center>
+<div style="background-color: black">
+<font face="Trebuchet MS" size="8" color="white">Welcome To Player Portal</font>
+</div>
+<div style="background-color: white;width: 550px;height: 850px">
+<font face="Trebuchet MS" size="5">Fill the details to update  Player.</font>
+
+<form action="searchForUpdate">
+Id:<input type="text" name="playerId" value="${player.playerId}">
+<input type="submit" value="search">
+</form>
+
+
+<form action="updateData">
+Name:<input type="text" name="playerName" value="${player.playerName}">
+<br>
+<br>City: <input type="text" name="playerCity" value="${player.playerCity}">
+<br>
+<input type="submit" value="update author">
+</form>
+
+</body>
+</html>
