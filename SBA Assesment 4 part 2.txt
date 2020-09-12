@@ -1,0 +1,1181 @@
+
+
+create table Dxc_Usersnew
+(
+userId varchar(10),
+userName varchar(20),
+password varchar(15),
+security_question varchar(40),
+security_answer varchar(30)
+);
+
+========Application class====
+
+package com.example.task1;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class Task1Application {
+
+	public static void main(String[] args) {
+		SpringApplication.run(Task1Application.class, args);
+		System.out.println("service started");
+	}
+
+}
+
+=========config class==========
+
+package com.example.task1;
+
+
+import javax.persistence.EntityManagerFactory;
+
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+@EnableTransactionManagement
+@Configuration
+public class ConfigClass {
+
+@Autowired
+EntityManagerFactory entityManagerFactory;
+
+@Bean
+public SessionFactory getSessionFactory(){
+return entityManagerFactory.unwrap(SessionFactory.class);
+}
+
+}
+
+==============Bean class==========
+
+package com.example.task1.model;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Table(name="dxc_usersnew")
+@Entity
+public class DxcUsers {
+
+	@Id
+	private int userId ;
+	private String userName;
+	private String password;
+	private String security_question;
+	private String security_answer;
+	
+	public int getUserId() {
+		return userId;
+	}
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	public String getSecurity_question() {
+		return security_question;
+	}
+	public void setSecurity_question(String security_question) {
+		this.security_question = security_question;
+	}
+	public String getSecurity_answer() {
+		return security_answer;
+	}
+	public void setSecurity_answer(String security_answer) {
+		this.security_answer = security_answer;
+	}
+	
+	public DxcUsers(int userId, String userName, String password, String security_question, String security_answer) {
+		super();
+		this.userId = userId;
+		this.userName = userName;
+		this.password = password;
+		this.security_question = security_question;
+		this.security_answer = security_answer;
+	}
+	
+	public DxcUsers() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	@Override
+	public String toString() {
+		return "DxcUsers [userId=" + userId + ", userName=" + userName + ", password=" + password
+				+ ", security_question=" + security_question + ", security_answer=" + security_answer + "]";
+	}
+	
+}
+
+======Dao Class==========
+
+package com.example.task1.model.dao;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.transaction.Transactional;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.example.task1.model.DxcUsers;
+
+@Component
+@Transactional
+public class DxcUsersDao {
+	
+    @Autowired
+	SessionFactory sessionFactor;
+    public String saveUser(DxcUsers dxcUsers) {
+    	try {
+    	Session session=sessionFactor.getCurrentSession();
+    	session.save(dxcUsers);
+    	return "user created";
+    	}
+    	catch (Exception e) {
+			// TODO: handle exception
+    		e.printStackTrace();
+		}
+    	return "cannot create user";
+    }
+    
+    public List<DxcUsers> getAllUsers()
+	{
+	try
+	{
+		Session session=sessionFactor.getCurrentSession();
+		Query query=session.createQuery("select a from DxcUsers a");
+	    System.out.println(query);
+	ArrayList<DxcUsers> dxcusers=(ArrayList<DxcUsers>)query.list();
+	return dxcusers ;
+	}
+	catch (Exception e) {
+	e.printStackTrace();
+	}
+	return null;
+	}
+    
+	public DxcUsers getUserById(int userId){
+		try{
+			Session session=sessionFactor.getCurrentSession();
+		DxcUsers dxcUsers=(DxcUsers)session.get(DxcUsers.class,userId);
+		return dxcUsers;
+		}
+		catch (Exception e) {
+		// TODO: handle exception
+		e.printStackTrace();
+		}
+		return null;
+		}
+	public String updateUserById(DxcUsers dxcUsers){
+		try{
+		Session session=sessionFactor.getCurrentSession();
+		System.out.println("dxcUsers"+dxcUsers);
+		session.update("DxcUsers",dxcUsers);
+		return "Password Updated";
+		}
+		catch (Exception e) {
+		// TODO: handle exception
+		e.printStackTrace();
+		}
+		return "Cannot Update Password";
+		}
+	
+    
+==============Home Controller==========
+
+package com.example.task1.controller;
+
+import java.util.ArrayList;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.example.task1.model.DxcUsers;
+import com.example.task1.model.dao.DxcUsersDao;
+
+
+@Controller
+public class HomeController {
+	@Autowired
+	DxcUsersDao dao;
+	
+@RequestMapping(value="/test")
+public String home() {
+	System.out.println("service is up buddy!");
+	dao.saveUser(new DxcUsers(45,"MSDhoni","msd@123","Which is your favorite animal?","Dog"));
+	return "home";
+}
+@RequestMapping(value="/New User")
+public String newUser(Model model)
+{
+return "NewUser";
+}
+
+@RequestMapping(value="/display")
+public String display(Model model,@ModelAttribute DxcUsers dxcusers)
+{
+String status=dao.saveUser(dxcusers);
+model.addAttribute("status",status);
+System.out.println(status);
+return "display";
+}
+
+@RequestMapping(value="/displayAllUsers")
+public String displayAllUsers(Model model)
+{
+	ArrayList<DxcUsers> dxcusers=(ArrayList<DxcUsers>)dao.getAllUsers();
+	model.addAttribute("DxcUsers",dxcusers);
+	System.out.println(dxcusers);
+	return "displayAllUsers";
+}
+@RequestMapping(value="/login")
+public String home(Model model)
+{
+return "LoginPage";
+}
+
+
+@RequestMapping(value="/validateUser")
+public String validateUser(Model model,@RequestParam("userId") String userId,@RequestParam("password") String password )
+{
+	int dxcuserId=Integer.parseInt(userId);
+	DxcUsers dxcUsers=dao.getUserById(dxcuserId);
+	String dxcPassword=dxcUsers.getPassword();
+	System.out.println(dxcPassword);
+	System.out.println(password);
+	System.out.println(dxcUsers);
+		
+		 if((dxcUsers != null)&&(dxcPassword.equals(password)))
+		 {
+			 System.out.println("login successful"); 
+			 return "LoginSuccess";
+		 }
+		 else 
+	     {
+			 System.out.println("failed");
+			 return "LoginFailed";
+	     }
+		}
+@RequestMapping(value="/ForgotPassword")
+public String forgotPassword(Model model)
+{
+return "ChangePassword";
+}
+int userId=0;
+@RequestMapping(value="/ChangePassword")
+public String passwordModification(Model model,@RequestParam("userId") String userId,@RequestParam("security_question") String security_question,@RequestParam("security_answer") String security_answer)
+{
+	int dxcuserId=Integer.parseInt(userId);
+	this.userId=dxcuserId;
+	DxcUsers dxcUsers=dao.getUserById(dxcuserId);
+	String dxcSecurity_question=dxcUsers.getSecurity_question();
+	String dxcSecurity_answer=dxcUsers.getSecurity_answer();
+	
+	System.out.println(dxcSecurity_question);
+	System.out.println(dxcSecurity_answer);
+	System.out.println(dxcUsers);
+		
+		 if((dxcUsers != null)&&(dxcSecurity_answer.equalsIgnoreCase(security_answer))&&(dxcSecurity_question.equalsIgnoreCase(security_question)))
+		 {
+			 model.addAttribute("userId", userId);
+			 System.out.println("login successful"); 
+			 return "ForgotPassword";
+		 }
+		 else 
+	     {
+			 System.out.println("failed");
+			 return "SecurityInvalid";
+	     }
+		}
+
+DxcUsers dxcusers;
+@RequestMapping(value="/CheckPassword")
+	public String CheckPassword(Model model,
+			@RequestParam("userId") String userId, @RequestParam("password") String password,@RequestParam("confirmPassword") String confirmPassword){
+	System.out.println(password);
+	System.out.println(confirmPassword);
+	if(password.equals(confirmPassword)) {
+		int dxcuserId=Integer.parseInt(userId);
+		this.userId=dxcuserId;
+		System.out.println(dxcuserId);
+		
+		dxcusers=dao.getUserById(dxcuserId);
+		
+		dxcusers.setUserId(dxcuserId);
+	    dxcusers.setUserName(dxcusers.getUserName());
+		dxcusers.setSecurity_question(dxcusers.getSecurity_question());
+	    dxcusers.setSecurity_answer(dxcusers.getSecurity_answer());
+		dxcusers.setPassword(password);	 
+		dao.updateUserById(dxcusers);
+		System.out.println(dxcusers);
+		System.out.println("login successful"); 
+		 return"LoginPage";
+	}
+	else {
+		System.out.println("failed");
+		 return "CheckPassword";
+	}
+	
+}
+
+
+}
+
+/*	@RequestMapping(value="/updatePage")
+	public String update()
+	{
+	return "updatePage";
+	}
+
+	String userId=" ";
+
+	@RequestMapping(value="/searchForUpdate")
+	public String searchForUpdate(Model model,@RequestParam("userId") String userId)
+	{
+	String playId=(userId);
+	this.userId=playId;
+	DxcUsers user=dao.getuserById(userId);
+
+	System.out.println(user);
+	model.addAttribute("user",user);
+	return "updatePage";
+	}
+
+	@RequestMapping(value="/change")
+	public String updateData(@ModelAttribute DxcUsers dxcUsers)
+	{
+	dxcUsers.setUserId(userId);;
+	dao.updatePass(dxcUsers);
+	return "updatePage";
+	}
+
+================main.css==========
+
+body{
+background-image:url(dxc.jfif);
+background-repeat:no-repeat;
+background-size:cover;
+font-family:Trebuchet MS;
+}
+
+===========style.css===========
+@charset "ISO-8859-1";
+body{
+background-image:url(dxc_technology_1.jpg);
+background-repeat:no-repeat;
+background-size:cover;
+font-family:Trebuchet MS;
+}
+
+===========java script===========
+
+function pwdvalidate(){
+		var pwd=document.getElementById('pwd').value;
+		var isCaps=false;
+		var isNum=false;
+		var isSmall=false;
+		var isSpl=false;
+		if(pwd.length<16){
+			return false;
+		}
+		else{
+			for(i=0;i<pwd.length;i++){
+				if(pwd[i]>='A'&&pwd[i]<='Z'){
+					isCaps=true;
+					break;
+				}
+			}
+			for(i=0;i<pwd.length;i++){
+				if(pwd[i]>='a'&&pwd[i]<='z'){
+					isSmall=true;
+					break;
+				}
+			}
+			for(i=0;i<pwd.length;i++){
+				if(!(pwd[i]>='a'&&pwd[i]<='z')||(pwd[i]>='0'&&pwd[i]<='9')||(pwd[i]>='A'&&pwd[i]<='Z')){
+					isSpl=true;
+					break;
+				}
+			}
+			if(isNum && isCaps && isSmall && isSpl){
+				alert('password accepted');
+				return true;
+			}
+			else{
+				alert('Invalid password');
+				return false;
+			}
+		}
+	}
+
+
+===================Application properties===========
+
+server.port=1145
+spring.mvc.view.suffix=.jsp
+spring.mvc.view.prefix=/views/
+
+# Keep the connection alive if idle for a long time (needed in production)
+spring.datasource.testWhileIdle = true
+spring.datasource.validationQuery = SELECT 1
+
+spring.jpa.show-sql = true
+
+spring.jpa.properties.hibernate.current_session_context_class=org.springframework.orm.hibernate4.SpringSessionContext
+
+
+spring.jpa.hibernate.naming.implicit-strategy=org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyHbmImpl
+spring.jpa.hibernate.naming.physical-strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.OracleDialect
+spring.jpa.hibernate.ddl-auto=update
+
+# Oracle settings
+spring.datasource.url=jdbc:oracle:thin:@localhost:1521:xe
+spring.datasource.username=dxcfs1
+spring.datasource.password=pass
+spring.datasource.driver-class-name=oracle.jdbc.driver.OracleDriver
+# logging
+logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n
+logging.level.org.hibernate.SQL=debug
+
+
+====================ChangePassword.jsp==============
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+
+<html>
+<head>
+	<title>Home</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="css/main.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+h1{
+position:relative;
+left:10px;
+top:50px;
+}
+form{
+font-size:20;
+font-style:bold;
+font-family:Trebuchet MS;
+position:relative;
+left:5px;
+top:30px;
+}
+</style>
+</head>
+<body class="container">
+<form action="ChangePassword">
+<section class="form-dark">
+<div class="card card-image"
+style=" width: 40rem;">
+    <div class="text-white rgba-stylish-strong py-5 px-5 z-depth-4">
+      <div class="text-center">
+        <h3 class="white-text mb-5 mt-4 font-weight-bold"><strong>Please Provide your details to</strong> <a
+            class="green-text font-weight-bold"><strong> Reset Password! </strong></a></h3>
+      </div>
+<br>
+      <div class="md-form">
+        <input type="text" name="userId" placeholder="USER ID" id="Form-email5" class="form-control white-text">
+        <label for="Form-email5">USER ID</label>
+      </div>
+<div class="md-form">
+<select name="security_question" id="Form-email5" class="form-control white-text">
+<option value="-----------------------------">----------------------------------</option>
+<option value="Who is your first crush?">Which is your first school?</option>
+<option value="Which is your birth place?">Which is your birth place?</option>
+<option value="Which is your favourite cricketer?">Which is your first college?</option>
+<option value="Which is your first Name?">Which is your first Name?</option>
+<option value="Which is your favorite food?">Which is your favorite food?</option>
+<option value="Which is your favorite animal?">Which is your favorite animal?</option>
+</select>
+<label for="Form-email5">SECURITY QUESTION:</label>
+</div>
+
+<div class="md-form">
+        <input type="text" name="security_answer" placeholder="SECURITY ANSWER" id="Form-email5" class="form-control white-text">
+        <label for="Form-email5">SECURITY ANSWER</label>
+  </div>
+      </div>
+
+      <div class="row d-flex align-items-center mb-4">
+        <div class="text-center mb-3 col-md-12">
+          <button type="submit" class="btn btn-warning btn-block btn-rounded z-depth-1">Change Password</button><br>     
+        </div>
+        </div>
+           
+      
+    </div>
+  
+ </section>
+</form>
+<!-- <h1>Please Provide your details to change the password!...</h1>
+<form class="form-horizontal" action="ChangePassword">
+<div class="form-group">
+USER ID:<input type="text" name="userId" placeholder="USER ID"><br><br>
+SECURITY QUESTION:<select name="security_question">
+<option value="-----------------------------">----------------------------------</option>
+<option value="Which is your first school?">Which is your first school?</option>
+<option value="Which is your birth place?">Which is your birth place?</option>
+<option value="Which is your first college?">Which is your first college?</option>
+<option value="Which is your first Name?">Which is your first Name?</option>
+<option value="Which is your favorite food?">Which is your favorite food?</option>
+<option value="Which is your favorite animal?">Which is your favorite animal?</option>
+</select><br><br>
+SECURITY ANSWER<input type="text" name="security_answer"placeholder="SECURITY ANSWER"><br><br>
+<input type="submit" class="btn btn-warning" value="Change Password">
+</div>
+</form>
+ -->
+ </body>
+</html>
+
+===================CheckPassword.jsp=================
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="css/main.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+form{
+font-size:20;
+font-style:bold;
+font-family:Trebuchet MS;
+position:relative;
+left:20px;
+top:300px;
+}
+</style>
+<script type="text/javascript">
+alert('OOPS!Password and confirm Password does not match.....');
+</script>
+
+<title>Insert title here</title>
+</head>
+<body class="container">
+<form class="form-horizontal" action="ForgotPassword">
+<div class="form-group">
+<center>
+<input type="submit" class="btn btn-danger" value="Change Password">
+</center>
+</div>
+</form>
+</body>
+</html>
+
+==================display.jsp==========
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="css/main.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+form{
+font-size:20;
+font-style:bold;
+font-family:algerian;
+position:relative;
+left:20px;
+top:300px;
+}
+</style>
+<script type="text/javascript">
+alert('Welcome to DXC Technology!Your details are recorded successfully!');
+</script>
+
+<title>Insert title here</title>
+</head>
+<body class="container">
+<center>
+<form action="login">
+<input type="submit" class="btn btn-primary" value="Return to Login Page">
+</form>
+</center>
+</body>
+</html>
+
+===============displayAllUsers.jsp===============
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+<html>
+<head>
+	<title>Home</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+</head>
+<body class="container">
+<center>
+<h1>Welcome to DXC Technology!</h1>
+<div class="table-striped">
+<table width="90%">
+<tr> <td><h4>USER NAME</h4> </td> <td><h4>USER ID</h4> </td> <td><h4>PASSWORD</h4></td> <td><h4>SECURITY QUESTION</h4></td> <td><h4>SECURITY ANSWER</h4></td> </tr>
+<c:forEach items="${DxcUsers}" var="dxcuser">
+<tr>
+<td>${dxcuser.userName}</td>
+<td>${dxcuser.userId}</td>
+<td>${dxcuser.password}</td>
+<td>${dxcuser.security_question}</td>
+<td>${dxcuser.security_answer}</td>
+
+</tr>
+</c:forEach>
+
+</table>
+</div>
+</center>
+</body>
+</html>
+
+===============forgotPassword.jsp==============
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+
+<html>
+<head>
+	<title>Home</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="css/main.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+h1{
+position:relative;
+left:20px;
+top:50px;
+}
+form{
+font-size:20;
+font-style:bold;
+font-family:Trebuchet MS;
+position:relative;
+left:10px;
+top:30px;
+}
+</style>
+</head>
+<body class="container">
+<form  action="CheckPassword">
+<section class="form-dark">
+<div class="card card-image"
+style=" width: 40rem;">
+    <div class="text-white rgba-stylish-strong py-5 px-5 z-depth-4">
+      <div class="text-center">
+        <h3 class="white-text mb-5 mt-4 font-weight-bold"><strong>Please Provide your details to</strong> <a
+            class="green-text font-weight-bold"><strong> Update Password! </strong></a></h3>
+      </div>
+
+      <div class="md-form">
+        <input type="text" disabled="disabled" value="${userId}" name="userId" placeholder="USER ID" id="Form-email5" class="form-control">
+        <input type="hidden" value="${userId}" name="userId" class="form-control"> 
+        <label for="Form-email5">USER ID</label>
+      </div> 
+     <%--  UserId:<input type="text" disabled="disabled" value="${userId}" name="usrIdShow" class="form-control"></td></tr>
+
+ --%>
+
+      <div class="md-form pb-3">
+        <input type="password" name="password" placeholder="PASSWORD"id="Form-pass5" class="form-control white-text">
+        <label for="Form-pass5">PASSWORD</label>
+        <div class="form-check my-4">
+ <div class="md-form pb-3">
+        <input type="password" name="confirmPassword" placeholder="CONFIRM PASSWORD"id="Form-pass5" class="form-control white-text">
+        <label for="Form-pass5">CONFIRM PASSWORD</label>
+        <div class="form-check my-4">
+ 
+ 
+ </div>
+      </div>
+      <div class="row d-flex align-items-center mb-4">
+        <div class="text-center mb-3 col-md-12">
+          <button type="submit" class="btn btn-success btn-block btn-rounded z-depth-1">Update Password</button><br>
+        </div>
+        </div>
+           
+      
+    </div>
+  </div>
+ 
+</section>
+</body>
+</html>
+
+====================home.jsp===========
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+
+<title>Insert title here</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+<body class="container">
+
+You are Welcomed Buddy!!!!!
+
+</body>
+</html>
+
+======================LoginFailed.jsp=============
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="css/main.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+form{
+font-size:20;
+font-style:bold;
+font-family:Trebuchet MS;
+position:relative;
+left:20px;
+top:300px;
+}
+</style>
+<script type="text/javascript">
+alert('User Name or Password is incorrect!!!.....');
+</script>
+
+<title>Insert title here</title>
+</head>
+<body class="container">
+<center>
+<form action="login">
+<input type="submit" class="btn btn-danger" value="Return to Login Page">
+</form>
+</center>
+</body>
+</html>
+
+=================LoginPage==============
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+
+<html>
+<head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="css/main.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+body{
+font-color:white;
+}
+h1{
+font-color:white;
+position:relative;
+left:20px;
+top:50px;
+}
+form{
+font-size:20;
+font-style:bold;
+font-family:Trebuchet MS;
+font-color:white;
+position:relative;
+left:20px;
+top:30px;
+}
+</style> 
+<title>Home</title>
+</head>
+<form  action="validateUser">
+<section class="form-dark">
+<div class="card card-image"
+style=" width: 40rem;">
+    <div class="text-white rgba-stylish-strong py-5 px-5 z-depth-4">
+      <div class="text-center">
+        <h3 class="white-text mb-5 mt-4 font-weight-bold"><strong>WELCOME TO</strong> <a
+            class="green-text font-weight-bold"><strong> DXC TECHNOLOGY </strong></a></h3>
+      </div>
+
+      <div class="md-form">
+        <input type="text" name="userId" placeholder="USER ID" id="Form-email5" class="form-control white-text">
+        <label for="Form-email5">USER ID</label>
+      </div>
+ <div class="md-form pb-3">
+        <input type="password" name="password" placeholder="PASSWORD"id="Form-pass5" class="form-control white-text">
+        <label for="Form-pass5">PASSWORD</label>
+        <div class="form-check my-4">
+       
+          <input class="form-check-input" type="checkbox" value="" id="defaultCheck17">
+          <label class="form-check-label white-text" for="defaultCheck17">Accept the<a href="#"
+              class="green-text font-weight-bold"> Terms and Conditions</a></label>
+        </div>
+      </div>
+    
+      <div class="row d-flex align-items-center mb-4">
+        <div class="text-center mb-3 col-md-12">
+          <button type="submit" class="btn btn-success btn-block btn-rounded z-depth-1">Sign in</button><br>
+
+          <p class="font-small-white-text d-flex justify-content-center">Forgot Password?<a href="ForgotPassword" class="text-danger ml-1 font-weight-bold">click here</a></p>
+
+<p class="font-small white-text d-flex justify-content-center">Don't Have an account? <a href="New User"
+            class="green-text ml-1 font-weight-bold"> register here</a></p>
+     
+        </div>
+        </div>
+           
+      
+    </div>
+  </div>
+ 
+</section>
+
+</form>
+</body>
+</html>
+
+==============LoginSuccess=============
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="css/main.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+h1{
+position:relative;
+left:20px;
+top:200px;
+}
+</style>
+
+<title>Insert title here</title>
+</head>
+<body class="container">
+<center>
+<h1>
+<a href="https://en.wikipedia.org/wiki/DXC_Technology">Welcome to DXC Technology!......</a>
+</h1>
+</center>
+</body>
+</html>
+
+=============NewUser.jsp==============
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page session="false" %>
+
+<html>
+<head>
+	<title>Home</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="css/main.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+h1{
+position:relative;
+left:20px;
+top:50px;
+}
+form{
+font-size:20;
+font-style:bold;
+font-family:algerian;
+position:relative;
+left:10px;
+top:30px;
+}
+</style>
+</head>
+<body class="container">
+<form action="display">
+<section class="form-dark">
+<div class="card card-image"
+style=" width: 40rem;">
+    <div class="text-white rgba-stylish-strong py-5 px-5 z-depth-4">
+      <div class="text-center">
+        <h3 class="white-text mb-5 mt-4 font-weight-bold"><strong>Please Provide your details to</strong> <a
+            class="green-text font-weight-bold"><strong> Register! </strong></a></h3>
+      </div>
+<br>
+<div class="md-form">
+        <input type="text" name="userName" placeholder="USER NAME" id="Form-email5" class="form-control white-text">
+        <label for="Form-email5">USER NAME</label>
+      </div>
+
+      <div class="md-form">
+        <input type="text" name="userId" placeholder="USER ID" id="Form-email5" class="form-control white-text">
+        <label for="Form-email5">USER ID</label>
+      </div>
+
+      <div class="md-form pb-3">
+        <input type="password" name="password" placeholder="PASSWORD"id="Form-pass5" class="form-control white-text">
+        <label for="Form-pass5">PASSWORD</label>
+        <div class="form-check my-4">
+ 
+<div class="md-form">
+<select name="security_question" id="Form-email5" class="form-control white-text">
+<option value="-----------------------------">----------------------------------</option>
+<option value="Which is your first school?">Which is your first school?</option>
+<option value="Which is your birth place?">Which is your birth place?</option>
+<option value="Which is your first college?">Which is your first college?</option>
+<option value="Which is your first Name?">Which is your first Name?</option>
+<option value="Which is your favorite food?">Which is your favorite food?</option>
+<option value="Which is your favorite animal?">Which is your favorite animal?</option>
+</select>
+<label for="Form-email5">SECURITY QUESTION:</label>
+</div>
+<div class="md-form">
+<input type="text" name="security_answer" placeholder="SECURITY ANSWER" id="Form-email5" class="form-control white-text">
+<label for="Form-email5">SECURITY ANSWER</label>
+</div>
+ </div>
+      </div>
+      <div class="row d-flex align-items-center mb-4">
+        <div class="text-center mb-3 col-md-12">
+          <button type="submit" class="btn btn-primary btn-block btn-rounded z-depth-1">REGISTER</button><br>
+        </div>
+        </div>
+           
+      
+    </div>
+  </div>
+ 
+</section>
+
+
+</body>
+</html>
+
+=================SecurityInvalid==============
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="css/main.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+form{
+font-size:20;
+font-style:bold;
+font-family:Trebuchet MS;
+position:relative;
+left:20px;
+top:300px;
+}
+</style>
+<script type="text/javascript">
+alert('OOPS!Invalid Credentials!.....');
+</script>
+
+<title>Insert title here</title>
+</head>
+<body class="container">
+<form class="form-horizontal" action="ForgotPassword">
+<div class="form-group">
+<center>
+<input type="submit" class="btn btn-danger" value="Change Password">
+</center>
+</div>
+</form>
+</body>
+</html>
+	
+===========pom.xml=========
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<modelVersion>4.0.0</modelVersion>
+<groupId>dxcresthib</groupId>
+<artifactId>Dxc-RestHib</artifactId>
+<version>0.0.1-SNAPSHOT</version>
+<name>Dxc-RestHib</name>
+<description>Demo project for Spring Boot</description>
+
+
+    <properties>
+        <start-class>spring-boot-example.Application</start-class>
+    </properties>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.1.RELEASE</version>
+    </parent>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-jdbc</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-jasper -->
+<dependency>
+    <groupId>org.apache.tomcat</groupId>
+    <artifactId>tomcat-jasper</artifactId>
+    <version>8.5.11</version>
+</dependency>
+<dependency>
+    <groupId>javax.servlet</groupId>
+    <artifactId>jstl</artifactId>
+    <version>1.2</version>
+</dependency>
+<!-- <dependency>
+    <groupId>com.oracle.ojdbc</groupId>
+    <artifactId>osdt_cert</artifactId>
+    <version>19.3.0.0</version>
+</dependency>
+
+https://mvnrepository.com/artifact/com.oracle.ojdbc/osdt_core
+<dependency>
+    <groupId>com.oracle.ojdbc</groupId>
+    <artifactId>osdt_core</artifactId>
+    <version>19.3.0.0</version>
+</dependency>
+ -->
+
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
+
+
